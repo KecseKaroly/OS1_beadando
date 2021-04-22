@@ -1,10 +1,5 @@
 #!/bin/bash
 #/usr/bin/python
-#echo -n "Válassz régiót! eune/euw/na: "
-#read region
-
-#echo -n "Adjon meg egy idéző nevet! "
-#read summonerName
 
 
 if [[ $# < 4 ]]
@@ -45,6 +40,7 @@ else
         mkdir Results
 fi
 
+#kiszedem a különböző osztályú divekből a számomra szükséges adatot
 
 grep -A 1 "<div class=\"ChampionName\">" eredmeny.txt > Results/ChampionNames.txt
 
@@ -63,6 +59,7 @@ grep "<span class=\"Assist\">" eredmeny.txt > Results/Assists.txt
 grep "<span class=\"CS tip\"" eredmeny.txt > Results/CreepScore.txt
 
 
+#A néhány esetben előforduló másfél soros whitespace karaktereket "--"-ra helyettesítem be, a határolás egyszerűsítése érdekében 
 champFile=`cat Results/ChampionNames.txt | xargs`
 kpFile=`cat Results/KillPart.txt | xargs`
 wlFile=`cat Results/WinLose.txt | xargs`
@@ -74,7 +71,7 @@ echo "$wlFile" > Results/WinLose.txt
 
 
 
-#MatchResult-ből kiszedem a HTML elemeket     "|" az elválasztó jel
+#MatchResult-ből kiszedem a HTML elemeket, ahol ki tudom alakítani a szükséges határoló karaktereket az egyes html tagek átírásával
 winLoseInput=`cat Results/WinLose.txt`
 winLoseOutput=${winLoseInput// -- /_}
 winLoseOutput=${winLoseOutput//<\/div>_/|}
@@ -86,9 +83,7 @@ winLoseOutput=${winLoseOutput// /}
 echo $winLoseOutput > Results/WinLose.txt
 
 
-#Assist-ből kiszedem a HTML tageket   " " az elválasztó, 2. elemtől
 assistInput=`cat Results/Assists.txt`
-
 assistOutput=${assistInput//<span class/k}
 assistOutput=${assistOutput//k\=\"Assist/k}
 assistOutput=${assistOutput//k\">/}
@@ -96,9 +91,9 @@ assistOutput=${assistOutput//<\/span>/}
 assistOutput=${assistOutput//k/}
 assistOutput=${assistOutput//*./}
 
-echo $assistOutput | sed 's/ /_/g' > Results/Assists.txt
+echo $assistOutput | sed 's/ /_/g' > Results/Assists.txt	#a python scriptbe átadandó paraméter miatt kiszedem a szóközöket, amiben benne van
+								#a hiba ellenőrzés és az áttekinthetőség miatt minden eredményt kimentettem egy .txt fájlba
 
-#Kills-ből kiszedem a HTML tageket      "/" az elválasztó, 2. elemtől
 killInput=`cat Results/Kills.txt`
 killOutput=${killInput//<span class\=\"Kill\">/k}
 killOutput=${killOutput//<\/span>/k}
@@ -115,7 +110,7 @@ killOutput=${killOutput//\//}
 echo $killOutput | sed 's/ /_/g' > Results/Kills.txt
 
 
-#Deaths-ből kiszedem a HTML tageket     "/" az elávasztó,  2. elemtől
+
 deathInput=`cat Results/Deaths.txt`
 deathOutput=${deathInput//<span class\=\"Death\">/k}
 deathOutput=${deathOutput//<\/span>/k}
@@ -125,7 +120,7 @@ deathOutput=${deathOutput//\//}
 echo $deathOutput | sed 's/ /_/g'> Results/Deaths.txt
 
 
-#Length-ből kiszedem a HTML tageket 	"|" az elválasztó, 1. elemtől
+
 
 lengthInput=`cat Results/Length.txt`
 lengthOutput=${lengthInput//<div class\=\"GameL/k}
@@ -137,7 +132,7 @@ echo $lengthOutput | sed 's/ //g' > Results/Length.txt
 
 
 
-#KillParticipation-ből kiszedem a HTML tageket     "_" az elválasztó, 1. elemtől
+
 kpInput=`cat Results/KillPart.txt`
 kpOutput=${kpInput// -- /_}
 kpOutput=${kpOutput//<\/div>_/|}
@@ -151,7 +146,7 @@ kpOutput=${kpOutput//<\/div>/}
 echo $kpOutput | sed 's/ //g' > Results/KillPart.txt
 
 
-#ChampionNames-ből kiszedem a HTML tageket	"|" az elválasztó, 1. elemtől, ezeket ">" jel választja el, 2. használható!
+
 champInput=`cat Results/ChampionNames.txt`
 champOutput=${champInput//<\/a>/|}
 champOutput=${champOutput//\/champion\//}
@@ -164,7 +159,7 @@ champOutput=${champOutput// \-\- /}
 echo $champOutput | sed 's/ //g' > Results/ChampionNames.txt
 
 
-#CreepScore-ból kiszedem a HTML tageket
+
 csInput=`cat Results/CreepScore.txt`
 csOutput=${csInput//<span class\=\"CS tip\"/}
 csOutput=${csOutput// title\=\"minion /}
@@ -176,6 +171,8 @@ csOutput=${csOutput// /}
 echo $csOutput | sed 's/ //g'> Results/CreepScore.txt
 
 
+
+#A már megfelelően formázott szövegfájlokat beolvasom a paraméterként átadandó változókba
 parKP=`cat Results/KillPart.txt`
 parCS=`cat Results/CreepScore.txt`
 parChampNames=`cat Results/ChampionNames.txt`
